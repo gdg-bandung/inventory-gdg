@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Archive, BarChart3, Boxes, ChevronDown, ClipboardCheck, ClipboardList, History, LogOut, Menu, Package, Users, X } from "lucide-react";
+import { Archive, BarChart3, BookOpen, Boxes, ChevronDown, ClipboardCheck, ClipboardList, History, LogOut, Menu, Package, Users, X } from "lucide-react";
 import { useInventory } from "./InventoryContext";
 import type { InventoryCategory } from "./types";
 import { isLowStock } from "./inventoryUtils";
@@ -50,6 +50,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <Link href="/inventory/audit" onClick={close} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold ${pathname.includes("audit") ? "bg-white/12" : "text-blue-100 hover:bg-white/8"}`}><History className="h-5 w-5" />Audit aktivitas</Link>
         {user.role==="admin"&&<Link href="/inventory/users" onClick={close} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold ${pathname.includes("users") ? "bg-white/12" : "text-blue-100 hover:bg-white/8"}`}><Users className="h-5 w-5" />Pengguna</Link>}
         <Link href="/inventory?archived=true" onClick={close} className="mt-1 flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-blue-100 hover:bg-white/8"><Archive className="h-5 w-5" />Arsip barang</Link>
+        <div className="my-4 border-t border-white/10" />
+        <Link href="/inventory/help" onClick={close} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold ${pathname.includes("help") ? "bg-white/12" : "text-blue-100 hover:bg-white/8"}`}><BookOpen className="h-5 w-5" />Panduan &amp; FAQ</Link>
       </nav>
       <div className="border-t border-white/10 p-4">
         <div className="mb-3 flex items-center gap-3 px-2"><div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-blue-400/20 text-sm font-bold">{(user.full_name || user.username).slice(0, 1).toUpperCase()}</div><div className="min-w-0"><p className="truncate text-sm font-semibold">{user.full_name || user.username}</p><p className="truncate text-xs text-blue-200">@{user.username}</p></div></div>
