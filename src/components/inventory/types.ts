@@ -76,6 +76,46 @@ export interface InventoryTransaction {
   item_unit: string;
 }
 
+export interface InventorySale {
+  id: string;
+  transaction_id: string;
+  item_id: string;
+  item_name: string;
+  item_code: string;
+  item_unit: string;
+  quantity: number;
+  unit_price: number;
+  total_amount: number;
+  sale_date: string;
+  customer_name: string | null;
+  notes: string | null;
+  status: "active" | "cancelled";
+  created_by: string;
+  cancelled_by: string | null;
+  cancelled_at: string | null;
+  cancellation_reason: string | null;
+  created_at: string;
+}
+
+export interface SaleInput {
+  item_id: string;
+  quantity: number;
+  unit_price: number;
+  sale_date: string;
+  customer_name?: string | null;
+  notes?: string | null;
+}
+
+export interface InventorySaleProduct {
+  item_id: string;
+  unit_price: number;
+  default_quantity: number;
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ItemInput {
   id?: string | null;
   name: string;

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Archive, BarChart3, BookOpen, Boxes, ChevronDown, ClipboardCheck, ClipboardList, History, LogOut, Menu, Package, Users, X } from "lucide-react";
+import { Archive, BarChart3, BookOpen, Boxes, ChevronDown, ClipboardCheck, ClipboardList, History, LogOut, Menu, Package, ShoppingCart, Users, X } from "lucide-react";
 import { useInventory } from "./InventoryContext";
 import type { InventoryCategory } from "./types";
 import { isLowStock } from "./inventoryUtils";
@@ -44,6 +44,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {categories.map(([value, label]) => <Link key={value} href={`/inventory?category=${encodeURIComponent(value)}`} onClick={close} className={`block rounded-lg px-3 py-2 text-sm ${activeCategory === value ? "bg-white/10 text-white" : "text-blue-200 hover:text-white"}`}>{label}</Link>)}
         </div>}
         <div className="my-4 border-t border-white/10" />
+        <Link href="/inventory/sales" onClick={close} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold ${pathname.includes("sales") ? "bg-white/12" : "text-blue-100 hover:bg-white/8"}`}><ShoppingCart className="h-5 w-5" />Penjualan</Link>
         <Link href="/inventory/transactions" onClick={close} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold ${pathname.includes("transactions") ? "bg-white/12" : "text-blue-100 hover:bg-white/8"}`}><ClipboardList className="h-5 w-5" />Riwayat Keluar-Masuk</Link>
         <Link href="/inventory/stocktakes" onClick={close} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold ${pathname.includes("stocktakes") ? "bg-white/12" : "text-blue-100 hover:bg-white/8"}`}><ClipboardCheck className="h-5 w-5" />Stock opname</Link>
         <Link href="/inventory/report" onClick={close} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold ${pathname.includes("report") ? "bg-white/12" : "text-blue-100 hover:bg-white/8"}`}><BarChart3 className="h-5 w-5" />Laporan</Link>

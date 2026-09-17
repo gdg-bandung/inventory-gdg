@@ -2,13 +2,15 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { InventoryItem, InventoryTransaction, ItemInput, SessionUser, TransactionInput } from "./types";
+import type { InventoryItem, InventorySale, InventorySaleProduct, InventoryTransaction, ItemInput, SaleInput, SessionUser, TransactionInput } from "./types";
 import { ToastViewport, type ToastData } from "./Toast";
 import { authHeaders, clearClientSession } from "@/lib/clientAuth";
 
 type ContextValue = {
   items: InventoryItem[];
   transactions: InventoryTransaction[];
+  sales: InventorySale[];
+  saleProducts: InventorySaleProduct[];
   user: SessionUser;
   loading: boolean;
   error: string | null;
@@ -17,6 +19,10 @@ type ContextValue = {
   deleteItem: (id: string) => Promise<void>;
   saveTransaction: (input: TransactionInput) => Promise<string>;
   reverseTransaction: (id: string, reason: string) => Promise<void>;
+  saveSale: (input: SaleInput) => Promise<string>;
+  cancelSale: (id: string, reason: string) => Promise<void>;
+  saveSaleProduct: (input: Pick<InventorySaleProduct, "item_id" | "unit_price" | "default_quantity">) => Promise<string>;
+  deleteSaleProduct: (itemId: string) => Promise<void>;
   toast: (message: string, type?: "success" | "error", retry?: boolean) => void;
 };
 
@@ -26,6 +32,8 @@ export function InventoryProvider({ user, children }: { user: SessionUser; child
   const router = useRouter();
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [transactions, setTransactions] = useState<InventoryTransaction[]>([]);
+  const [sales, setSales] = useState<InventorySale[]>([]);
+  const [saleProducts, setSaleProducts] = useState<InventorySaleProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [toasts, setToasts] = useState<ToastData[]>([]);
@@ -59,9 +67,11 @@ export function InventoryProvider({ user, children }: { user: SessionUser; child
     setLoading(true);
     setError(null);
     try {
-      const [itemPayload, txPayload] = await Promise.all([api("/api/inventory/items"), api("/api/inventory/transactions")]);
+      const [itemPayload, txPayload, salesPayload, saleProductsPayload] = await Promise.all([api("/api/inventory/items"), api("/api/inventory/transactions"), api("/api/inventory/sales"), api("/api/inventory/sales/products")]);
       setItems(itemPayload.data ?? []);
       setTransactions(txPayload.data ?? []);
+      setSales(salesPayload.data ?? []);
+      setSaleProducts(saleProductsPayload.data ?? []);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Gagal memuat data";
       if (!message.includes("Unauthorized")) {
@@ -80,12 +90,16 @@ export function InventoryProvider({ user, children }: { user: SessionUser; child
   }, [api, refetchInventory]);
 
   const value = useMemo<ContextValue>(() => ({
-    items, transactions, user, loading, error, refetchInventory, toast,
+    items, transactions, sales, saleProducts, user, loading, error, refetchInventory, toast,
     saveItem: async (input) => (await mutate("/api/inventory/items", "POST", input)).id,
     deleteItem: async (id) => { await mutate(`/api/inventory/items?id=${encodeURIComponent(id)}`, "DELETE"); },
     saveTransaction: async (input) => (await mutate("/api/inventory/transactions", "POST", input)).id,
     reverseTransaction: async (id, reason) => { await mutate(`/api/inventory/transactions?id=${encodeURIComponent(id)}&reason=${encodeURIComponent(reason)}`, "DELETE"); },
-  }), [items, transactions, user, loading, error, refetchInventory, toast, mutate]);
+    saveSale: async (input) => (await mutate("/api/inventory/sales", "POST", input)).id,
+    cancelSale: async (id, reason) => { await mutate(`/api/inventory/sales?id=${encodeURIComponent(id)}&reason=${encodeURIComponent(reason)}`, "DELETE"); },
+    saveSaleProduct: async (input) => (await mutate("/api/inventory/sales/products", "POST", input)).id,
+    deleteSaleProduct: async (itemId) => { await mutate(`/api/inventory/sales/products?item_id=${encodeURIComponent(itemId)}`, "DELETE"); },
+  }), [items, transactions, sales, saleProducts, user, loading, error, refetchInventory, toast, mutate]);
 
   return (
     <InventoryContext.Provider value={value}>
